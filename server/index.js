@@ -23,6 +23,17 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 
+// Admin routes
+app.use('/api/admin/customers', require('./routes/admin/customers'));
+app.use('/api/admin/coupons', require('./routes/admin/coupons'));
+app.use('/api/admin/site-content', require('./routes/admin/siteContent'));
+app.use('/api/admin/payments', require('./routes/admin/payments'));
+app.use('/api/admin/reports', require('./routes/admin/reports'));
+
+// Public routes
+app.use('/api/coupons', require('./routes/admin/coupons')); // For coupon validation
+app.use('/api/site-content', require('./routes/admin/siteContent')); // For public content
+
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Jewellery E-commerce API Server' });

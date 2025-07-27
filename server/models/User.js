@@ -24,7 +24,22 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
+  blockedAt: Date,
+  blockedReason: String,
+  lastLogin: Date,
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
@@ -32,6 +47,9 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
+  // Update updatedAt
+  this.updatedAt = new Date();
+  
   if (!this.isModified('password')) {
     return next();
   }
