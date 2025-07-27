@@ -27,9 +27,33 @@ const orderSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  subtotal: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  taxAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  shippingAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  discountAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  coupon: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Coupon'
+  },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned'],
     default: 'pending'
   },
   shippingAddress: {
@@ -52,7 +76,17 @@ const orderSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// Update updatedAt on save
+orderSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 module.exports = mongoose.model('Order', orderSchema);
