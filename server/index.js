@@ -41,8 +41,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Jewellery E-commerce API Server' });
 });
 
-// 404 handler for undefined routes
-app.use('*', (req, res) => {
+// 404 handler for undefined routes  
+app.use((req, res, _next) => {
   res.status(404).json({ 
     message: 'Route not found',
     path: req.originalUrl
@@ -50,7 +50,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((error, req, res, next) => {
+app.use((error, req, res, _next) => {
   console.error('Global error handler:', error);
   
   // Mongoose validation error

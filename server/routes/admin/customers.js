@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', adminAuth, async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status, role } = req.query;
-    let query = {};
+    const query = {};
 
     // Apply filters
     if (search) {

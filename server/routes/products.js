@@ -1,6 +1,6 @@
 const express = require('express');
 const Product = require('../models/Product');
-const { auth, adminAuth } = require('../middleware/auth');
+const { auth: _auth, adminAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { category, minPrice, maxPrice, search } = req.query;
-    let query = { isActive: true };
+    const query = { isActive: true };
 
     // Apply filters
     if (category) {

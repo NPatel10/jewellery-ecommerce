@@ -3,10 +3,10 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/build/**']
+    ignores: ['**/dist/**', '**/node_modules/**', '**/build/**', 'client/**']
   },
   {
-    files: ['**/*.{js,jsx,mjs,cjs}'],
+    files: ['**/*.{js,mjs,cjs}'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -36,14 +36,6 @@ export default [
     },
     rules: {
       'no-console': 'off' // Allow console logs in server
-    }
-  },
-  {
-    files: ['client/**/*.{js,jsx}'],
-    languageOptions: {
-      globals: {
-        ...globals.browser
-      }
     }
   }
 ];

@@ -12,8 +12,8 @@ router.get('/dashboard', adminAuth, async (req, res) => {
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-    const yesterday = new Date(now.setDate(now.getDate() - 1));
+    const _startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const _yesterday = new Date(now.setDate(now.getDate() - 1));
 
     const stats = await Promise.all([
       // Total counts

@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', adminAuth, async (req, res) => {
   try {
     const { page = 1, limit = 10, type, position, isActive } = req.query;
-    let query = {};
+    const query = {};
 
     // Apply filters
     if (type && type !== 'all') {
@@ -46,7 +46,7 @@ router.get('/', adminAuth, async (req, res) => {
 router.get('/public', async (req, res) => {
   try {
     const { type, position, category } = req.query;
-    let query = {
+    const query = {
       isActive: true,
       $or: [
         { publishAt: { $lte: new Date() } },
