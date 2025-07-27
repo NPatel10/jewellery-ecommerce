@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
 // Load environment variables
@@ -17,6 +18,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -37,6 +39,50 @@ app.use('/api/site-content', require('./routes/admin/siteContent')); // For publ
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Jewellery E-commerce API Server' });
+});
+
+// 404 handler for undefined routes  
+app.use((req, res, _next) => {
+  res.status(404).json({ 
+    message: 'Route not found',
+    path: req.originalUrl
+  });
+});
+
+// Global error handler
+app.use((error, req, res, _next) => {
+  console.error('Global error handler:', error);
+  
+  // Mongoose validation error
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({
+      message: 'Validation error',
+      errors: Object.values(error.errors).map(err => err.message)
+    });
+  }
+  
+  // Mongoose duplicate key error
+  if (error.code === 11000) {
+    return res.status(400).json({
+      message: 'Duplicate entry error',
+      field: Object.keys(error.keyPattern)[0]
+    });
+  }
+  
+  // JWT errors
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+  
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({ message: 'Token expired' });
+  }
+  
+  // Default server error
+  res.status(error.status || 500).json({
+    message: error.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+  });
 });
 
 // MongoDB connection

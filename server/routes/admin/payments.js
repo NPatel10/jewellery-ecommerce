@@ -19,7 +19,7 @@ router.get('/', adminAuth, async (req, res) => {
       maxAmount
     } = req.query;
     
-    let query = {};
+    const query = {};
 
     // Apply filters
     if (status && status !== 'all') {

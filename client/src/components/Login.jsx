@@ -37,8 +37,13 @@ const Login = () => {
       }
 
       if (result.success) {
-        // Redirect based on role (will be handled by AuthContext)
-        navigate('/user');
+        // Redirect based on role - AuthContext will have the user info
+        const userRole = result.user?.role;
+        if (userRole === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/user');
+        }
       } else {
         setError(result.error);
       }

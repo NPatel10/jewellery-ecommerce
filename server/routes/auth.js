@@ -33,9 +33,17 @@ router.post('/register', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // Set HttpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
     res.status(201).json({
       message: 'User created successfully',
-      token,
+      token, // Also send in response for localStorage option
       user: {
         id: user._id,
         name: user.name,
@@ -73,9 +81,17 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // Set HttpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
     res.json({
       message: 'Login successful',
-      token,
+      token, // Also send in response for localStorage option
       user: {
         id: user._id,
         name: user.name,
@@ -104,6 +120,12 @@ router.get('/me', auth, async (req, res) => {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logged out successfully' });
 });
 
 module.exports = router;

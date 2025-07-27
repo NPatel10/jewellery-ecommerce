@@ -9,9 +9,11 @@ import {
   Legend,
   LineElement,
   PointElement,
-  ArcElement
+  ArcElement,
+  Filler
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import { LineChart, Line as RechartsLine, AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar as RechartsBar } from 'recharts';
 import axios from 'axios';
 import {
   CurrencyDollarIcon,
@@ -27,6 +29,7 @@ ChartJS.register(
   LineElement,
   PointElement,
   ArcElement,
+  Filler,
   Title,
   Tooltip,
   Legend
@@ -66,6 +69,8 @@ const StatsCard = ({ title, value, icon, change, changeType }) => {
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [salesData, setSalesData] = useState(null);
+  const [userGrowthData, setUserGrowthData] = useState(null);
+  const [topProductsData, setTopProductsData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,13 +79,16 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [dashboardRes, salesRes] = await Promise.all([
+      const [dashboardRes, salesRes, userGrowthRes] = await Promise.all([
         axios.get('/api/admin/reports/dashboard'),
-        axios.get('/api/admin/reports/sales?period=month')
+        axios.get('/api/admin/reports/sales?period=month'),
+        axios.get('/api/admin/reports/customers?period=month')
       ]);
       
       setStats(dashboardRes.data);
       setSalesData(salesRes.data);
+      setUserGrowthData(userGrowthRes.data);
+      setTopProductsData(salesRes.data.topProductsDetailed);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -97,11 +105,11 @@ const Dashboard = () => {
   }
 
   const salesChartData = {
-    labels: salesData?.salesData?.map(item => item._id) || [],
+    labels: salesData?.salesDataDetailed?.map(item => item._id) || [],
     datasets: [
       {
         label: 'Revenue ($)',
-        data: salesData?.salesData?.map(item => item.revenue) || [],
+        data: salesData?.salesDataDetailed?.map(item => item.revenue) || [],
         backgroundColor: 'rgba(59, 130, 246, 0.5)',
         borderColor: 'rgba(59, 130, 246, 1)',
         borderWidth: 1,
@@ -110,10 +118,10 @@ const Dashboard = () => {
   };
 
   const categoryChartData = {
-    labels: salesData?.categorySales?.map(item => item._id) || [],
+    labels: salesData?.categorySalesDetailed?.map(item => item._id) || [],
     datasets: [
       {
-        data: salesData?.categorySales?.map(item => item.revenue) || [],
+        data: salesData?.categorySalesDetailed?.map(item => item.revenue) || [],
         backgroundColor: [
           '#FF6384',
           '#36A2EB',
@@ -125,6 +133,19 @@ const Dashboard = () => {
       },
     ],
   };
+
+  // User Growth data for Recharts (area chart)
+  const userGrowthChartData = userGrowthData?.newCustomersOverTimeDetailed?.map(item => ({
+    date: item._id,
+    users: item.newCustomers
+  })) || [];
+
+  // Top Products data for Recharts (bar chart) 
+  const topProductsChartData = topProductsData?.slice(0, 10).map(item => ({
+    name: item.name?.length > 15 ? item.name.substring(0, 15) + '...' : item.name,
+    revenue: item.revenue,
+    quantity: item.quantity
+  })) || [];
 
   const chartOptions = {
     responsive: true,
@@ -186,7 +207,7 @@ const Dashboard = () => {
         {/* Sales Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Sales (Last 30 Days)</h3>
-          {salesData?.salesData?.length > 0 ? (
+          {salesData?.salesDataDetailed?.length > 0 ? (
             <Bar data={salesChartData} options={chartOptions} />
           ) : (
             <div className="h-64 flex items-center justify-center text-gray-500">
@@ -198,7 +219,7 @@ const Dashboard = () => {
         {/* Category Distribution */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Sales by Category</h3>
-          {salesData?.categorySales?.length > 0 ? (
+          {salesData?.categorySalesDetailed?.length > 0 ? (
             <div className="h-64">
               <Doughnut 
                 data={categoryChartData} 
@@ -216,6 +237,59 @@ const Dashboard = () => {
           ) : (
             <div className="h-64 flex items-center justify-center text-gray-500">
               No category data available
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Additional Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User Growth Chart */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">User Growth (Last 30 Days)</h3>
+          {userGrowthChartData?.length > 0 ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={userGrowthChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area 
+                    type="monotone" 
+                    dataKey="users" 
+                    stroke="#8884d8" 
+                    fill="#8884d8" 
+                    fillOpacity={0.3}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No user growth data available
+            </div>
+          )}
+        </div>
+
+        {/* Top Products Chart */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Top Products by Revenue</h3>
+          {topProductsChartData?.length > 0 ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topProductsChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <RechartsBar dataKey="revenue" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No product data available
             </div>
           )}
         </div>

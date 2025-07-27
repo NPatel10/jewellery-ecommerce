@@ -3,7 +3,12 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    // Check for token in Authorization header or HttpOnly cookie
+    let token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      token = req.cookies?.token;
+    }
     
     if (!token) {
       return res.status(401).json({ message: 'No token, authorization denied' });
@@ -18,7 +23,7 @@ const auth = async (req, res, next) => {
 
     req.user = user;
     next();
-  } catch (error) {
+  } catch {
     res.status(401).json({ message: 'Token is not valid' });
   }
 };
@@ -31,7 +36,7 @@ const adminAuth = async (req, res, next) => {
       }
       next();
     });
-  } catch (error) {
+  } catch {
     res.status(401).json({ message: 'Authorization failed' });
   }
 };
