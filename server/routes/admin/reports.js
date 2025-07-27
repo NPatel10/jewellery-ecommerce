@@ -178,9 +178,12 @@ router.get('/sales', adminAuth, async (req, res) => {
 
     res.json({
       period,
-      salesData,
-      categorySales,
-      topProducts,
+      salesData: salesData.map(item => ({ label: item._id, value: item.revenue })),
+      salesDataDetailed: salesData, // Keep detailed data for internal use
+      categorySales: categorySales.map(item => ({ label: item._id, value: item.revenue })),
+      categorySalesDetailed: categorySales, // Keep detailed data for internal use
+      topProducts: topProducts.map(item => ({ label: item.name, value: item.revenue, quantity: item.quantity })),
+      topProductsDetailed: topProducts, // Keep detailed data for internal use
       summary: {
         totalRevenue: salesData.reduce((sum, item) => sum + item.revenue, 0),
         totalOrders: salesData.reduce((sum, item) => sum + item.orders, 0),
@@ -285,7 +288,8 @@ router.get('/customers', adminAuth, async (req, res) => {
 
     res.json({
       period,
-      newCustomersOverTime: customerStats[0],
+      newCustomersOverTime: customerStats[0].map(item => ({ label: item._id, value: item.newCustomers })),
+      newCustomersOverTimeDetailed: customerStats[0], // Keep detailed data
       topCustomers: customerStats[1],
       customerStatusDistribution: customerStats[2],
       summary: {

@@ -7,6 +7,7 @@ import UserDashboard from './components/UserDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import Storefront from './components/storefront/Storefront';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotFound from './components/NotFound';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/" element={<Navigate to="/storefront" replace />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </Router>

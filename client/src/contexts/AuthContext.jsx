@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setCurrentUser(user);
-      return { success: true };
+      return { success: true, user };
     } catch (error) {
       return { 
         success: false, 
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setCurrentUser(user);
-      return { success: true };
+      return { success: true, user };
     } catch (error) {
       return { 
         success: false, 
